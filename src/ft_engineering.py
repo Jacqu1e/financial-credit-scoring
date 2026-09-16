@@ -8,16 +8,8 @@ from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 def prepare_data(data_path, target_col):
     """
-    Carga el dataset, separa características y target, 
-    y realiza la división train/test.
-    """
-    df = pd.read_csv(data_path, encoding='latin1')
-    X = df.drop(columns=[target_col])
-    y = df[target_col]
-
-    """
     Carga el dataset, elimina nulos en la columna objetivo,
-    separa características y target, y realiza la división train/test.
+    separa características y target, y realiza la división train/test sin estratificado.
     """
     df = pd.read_csv(data_path, encoding='latin1')
     
@@ -27,7 +19,8 @@ def prepare_data(data_path, target_col):
     X = df.drop(columns=[target_col])
     y = df[target_col]
     
-    return train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    # Se remueve stratify=y para evitar el error de clases con 1 solo miembro
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
 def build_feature_pipeline(num_cols, cat_cols, ordinal_cols=None):
     """
