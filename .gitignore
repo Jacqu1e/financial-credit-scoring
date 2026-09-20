@@ -1,2 +1,24 @@
+# Archivos temporales de Python y cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+
+# Archivos de configuracion local
+.env
+.vscode/
+.idea/
+
+# Datos y archivos especificos
 set_up.bat
 Base_de_datos.xlsx
+
+# Logs y temporales
+*.log
+*.sqlite3
