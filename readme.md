@@ -37,38 +37,150 @@ El proyecto sigue una estrategia de ramificación estructurada (`master`, `certi
 
 ---
 
-## 🛠️ Instalación y Configuración
-
-Sigue estos pasos para clonar el repositorio e instalar el proyecto en tu entorno local.
+## Instalación
 
 ### 1. Clonar el repositorio
-```bash
-git clone [https://github.com/Jacqu1e/financial-credit-scoring.git](https://github.com/Jacqu1e/financial-credit-scoring.git)
+
+git clone https://github.com/Jacqu1e/financial-credit-scoring.git
 cd financial-credit-scoring
-2. Crear y activar el entorno virtualOpción A — Entorno virtual estándar (venv) [Recomendado]:PowerShell# Crear entorno virtual
+
+### 2. Crear y activar el entorno virtual
+
+**Entorno virtual estándar (venv):**
+
 python -m venv venv
-
-# Activar en Windows (PowerShell)
 .\venv\Scripts\activate
-
-# Activar en Linux / macOS
-# source venv/bin/activate
-
-# Instalar dependencias
 pip install --upgrade pip
 pip install -r requirements.txt
-Opción B — Entorno en Anaconda:Bash# Crear el entorno en Conda
-conda create -n env_riesgo_crediticio python=3.10 -y
-conda activate env_riesgo_crediticio
 
-# Instalar dependencias
-pip install -r requirements.txt
-3. Opción alternativa — DockerPuedes construir y desplegar la aplicación empaquetada mediante Docker:Bash# Construir la imagen de Docker
+
+### 3. Opción alternativa — Docker
+
 docker build -t financial-credit-scoring .
-
-# Ejecutar el contenedor levantando el puerto
 docker run -p 8501:8501 financial-credit-scoring
-🚀 Uso del Sistema1. Ejecución del Pipeline de Entrenamiento y EvaluaciónPara entrenar el modelo de Machine Learning y generar las métricas junto al artefacto model.joblib:Bashpython src/model_training_evaluation.py
-2. Ejecutar la API REST (FastAPI)Para desplegar la API localmente con Uvicorn:Bashuvicorn src.api:app --reload
-La API quedará disponible en http://127.0.0.1:8000 y la documentación interactiva Swagger en http://127.0.0.1:8000/docs.3. Ejecutar la Aplicación de Monitoreo (Streamlit)Bashstreamlit run app.py
-La aplicación quedará disponible en tu navegador en http://localhost:8501.📊 App de Monitoreo & Detección de Data DriftEl dashboard interactivo de Streamlit permite supervisar la estabilidad del modelo y simular perturbaciones en los datos en tiempo real.Pestañas Principales:Predecir: Formulario interactivo para ingresar las características de un cliente y obtener en tiempo real la clasificación del riesgo y probabilidad de pago.Cargar Datos: Permite cargar un nuevo conjunto de datos en formato .csv o .xlsx para evaluar la performance del modelo sobre datos de producción o recientes.Evaluar Data Drift: Compara estadísticamente el dataset de referencia (entrenamiento) contra el dataset actual para detectar cambios en las distribuciones de las características.Visualización: Muestra métricas de desempeño como la Curva ROC-AUC, Curva Precision-Recall y la Matriz de Confusión.⚠️ Detección y Métricas de Data DriftEl módulo de monitoreo evalúa las 22 variables del modelo utilizando pruebas estadísticas según el tipo de dato:Variables Numéricas — Test Kolmogorov-Smirnov (KS):Evalúa si la distribución empírica de una variable ha variado significativamente ($p\text{-value} < 0.05$).Variables Categóricas — Prueba Chi-Cuadrado ($\chi^2$):Compara las proporciones de frecuencia en variables categóricas ($p\text{-value} < 0.05$).Alerta Crítica de MLOps: Si más del 25% de las variables monitoreadas presentan drift (variación estadística significativa), el sistema emite una Alerta Crítica recomendando activar el pipeline de reentrenamiento inmediato.📋 Variables del ModeloEl modelo evalúa 22 características clave para predecir el comportamiento crediticio:VariableTipoDescripciónsalario_clienteNuméricaSalario mensual reportadoedad_clienteNuméricaEdad del solicitante en añosplazo_mesesNuméricaPlazo solicitado para el créditocuota_pactadaNuméricaValor de la cuota mensualdeuda_totalNuméricaSuma global de deudas vigentesingreso_disponibleNuméricaIngresos libres tras deducción de cuotaratio_endeudamientoNuméricaProporción entre deudas e ingresossaldo_totalNuméricaSaldo en cuentas de ahorro/corrientecant_creditosvigentesNuméricaNúmero total de créditos activoscreditos_sectorFinancieroNuméricaCréditos en bancos e instituciones financierascreditos_sectorCooperativoNuméricaCréditos con cooperativascreditos_sectorRealNuméricaCréditos en comercio/sector realtipo_laboralCategóricaCondición de empleo (Empleado / Independiente)tendencia_ingresosCategóricaComportamiento del ingreso (Creciente / Estable / Decreciente)Variable Objetivo: Pago_atiempo (1 = El cliente cumple el pago a tiempo; 0 = Cliente entra en mora).
+
+---
+
+## Uso
+
+### 1. Ejecutar el Pipeline de Entrenamiento
+
+python src/model_training_evaluation.py
+
+### 2. Ejecutar la aplicación de monitoreo
+
+streamlit run app.py
+
+La aplicación quedará disponible en http://localhost:8501.
+
+### 3. Ejecutar la API REST (FastAPI)
+
+uvicorn src.api:app --reload
+
+La API quedará disponible en http://127.0.0.1:8000 y la documentación interactiva en http://127.0.0.1:8000/docs.
+
+### 4. Configurar rutas (antes de ejecutar)
+
+En los scripts principales, actualiza las rutas al modelo y al dataset según tu entorno local:
+
+model_path = 'model.joblib'
+data_path  = 'Base_de_datos.xlsx'
+
+---
+
+## App de Monitoreo
+
+La aplicación está organizada en **cuatro pestañas principales** y un **menú lateral**:
+
+### Predecir
+Formulario interactivo para ingresar manualmente las características de un cliente y obtener la **probabilidad de pago** en tiempo real. Las variables de entrada incluyen:
+
+- Salario, edad y plazo del crédito
+- Cuota pactada, deuda total e ingreso disponible
+- Ratio de endeudamiento y saldo total
+- Cantidad de créditos vigentes por sector
+ (financiero, cooperativo, real)
+- Tipo laboral y tendencia de ingresos
+
+### Cargar Datos
+Permite subir un nuevo dataset en formato **CSV** o **Excel (.xlsx)** para evaluar el comportamiento del modelo sobre datos recientes.
+
+### Evaluar Data Drift
+Detecta cambios estadísticos entre el dataset de entrenamiento 
+original y el nuevo dataset cargado. Ver sección [Data Drift](#data-drift).
+
+### Visualización
+Dashboard con las métricas de evaluación del modelo:
+
+- **Curva Precision-Recall** — con Average Precision Score
+- **Curva ROC** — con área bajo la curva (AUC)
+- **Matriz de Confusión** — con clasificación por umbral de 0.5
+
+---
+
+## Data Drift
+
+El tab **"Evaluar Data Drift"** compara estadísticamente 
+el conjunto de entrenamiento original con el nuevo dataset 
+cargado, usando dos pruebas según el tipo de variable:
+
+### Variables Numéricas — Test de Kolmogorov-Smirnov (KS)
+
+Compara la distribución de cada variable numérica entre 
+ambos datasets. Un **p-value < 0.05** indica que la distribución 
+cambió significativamente.
+
+| Variable | KS Stat | P-Value | Drift |
+|---|---|---|---|
+| salario_cliente | 0.08 | 0.03 | ⚠️ Sí |
+| edad_cliente | 0.04 | 0.42 | ✅ No |
+| ... | ... | ... | ... |
+
+### Variables Categóricas — Prueba Chi-Cuadrado (χ²)
+
+Compara la frecuencia de cada categoría entre ambos datasets 
+mediante una tabla de contingencia. Un **p-value < 0.05** 
+indica drift en la distribución categórica.
+
+| Variable | Chi2 Stat | P-Value | Drift |
+|---|---|---|---|
+| tipo_laboral | 1.23 | 0.27 | ✅ No |
+| tendencia_ingresos | 8.45 | 0.01 | ⚠️ Sí |
+
+> **Nota:** Los valores nulos son eliminados antes de aplicar las pruebas. Solo se evalúan las columnas presentes en ambos datasets.
+> **Alerta Crítica MLOps:** Si más del **25%** de las variables presentan *drift*, la aplicación dispara automáticamente un aviso de reentrenamiento inmediato.
+
+---
+
+## Variables del Modelo
+
+Recuerda respetar estas variables al ingresar datos manualmente o al cargar un nuevo dataset, ya que el modelo fue entrenado con estas características específicas:
+
+| Variable | Tipo | Descripción |
+|---|---|---|
+| `salario_cliente` | Numérica | Salario mensual del cliente |
+| `edad_cliente` | Numérica | Edad en años |
+| `plazo_meses` | Numérica | Plazo del crédito en meses |
+| `cuota_pactada` | Numérica | Cuota mensual acordada |
+| `deuda_total` | Numérica | Capital prestado + otros préstamos |
+| `ingreso_disponible` | Numérica | Ingresos menos cuota pactada |
+| `ratio_endeudamiento` | Numérica | Relación deuda / ingreso |
+| `saldo_total` | Numérica | Saldo total del cliente |
+| `cant_creditosvigentes` | Numérica | Número de créditos activos |
+| `creditos_sectorFinanciero` | Numérica | Créditos en sector financiero |
+| `creditos_sectorCooperativo` | Numérica | Créditos en sector cooperativo |
+| `creditos_sectorReal` | Numérica | Créditos en sector real |
+| `tipo_laboral` | Categórica | Empleado / Independiente |
+| `tendencia_ingresos` | Categórica | Creciente / Decreciente / Estable |
+
+**Variable objetivo:** `Pago_atiempo` — `1` si el cliente pagó a tiempo, `0` si entró en mora.
+
+---
+
+## Licencia
+
+Este proyecto está bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+<p align="center">Desarrollado por <a href="https://github.com/Jacqu1e">Jacqu1e</a></p>
